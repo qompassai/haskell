@@ -1,0 +1,16 @@
+{
+  "title": "haskell",
+  "creators": [
+    {
+      "name": "Porter, Matthew A.",
+      "affiliation": "Qompass AI",
+      "orcid": "0000-0002-0302-4812"
+    }
+  ],
+  "description": "Qompas AI on Haskell: The Most 'WhitePaper' language",
+  "license": "Q-CDA-1.0",
+  "upload_type": "software",
+  "version": "2025.07.17",
+  "publication_date": "2025-07-17",
+  "access_right": "open"
+}

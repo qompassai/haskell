@@ -8,17 +8,17 @@
 
 ![Repository Views](https://komarev.com/ghpvc/?username=qompassai-haskell)
 ![GitHub all releases](https://img.shields.io/github/downloads/qompassai/haskell/total?style=flat-square)
-  <a href="https://www.torproject.org/">
-  <img src="https://img.shields.io/badge/Tor-7E4798?style=for-the-badge&logo=torproject&logoColor=white" alt="Tor">
+<p align="center">
+ <a href="https://www.haskell.org/">
+  <img src="https://img.shields.io/badge/Haskell-5D4F85?style=for-the-badge&logo=haskell&logoColor=white" alt="Haskell">
 </a>
 <br>
-<a href="https://2019.www.torproject.org/docs/documentation.html.en">
-  <img src="https://img.shields.io/badge/Tor_Documentation-blue?style=flat-square" alt="Tor Documentation">
+<a href="https://www.haskell.org/documentation/">
+  <img src="https://img.shields.io/badge/Haskell_Documentation-blue?style=flat-square" alt="Haskell Documentation">
 </a>
-<a href="https://github.com/topics/tor">
-  <img src="https://img.shields.io/badge/Tor_Tutorials-green?style=flat-square" alt="Tor Tutorials">
+<a href="https://github.com/topics/haskell">
+  <img src="https://img.shields.io/badge/Haskell_Tutorials-green?style=flat-square" alt="Haskell Tutorials">
 </a>
-<br>
   <a href="https://www.gnu.org/licenses/agpl-3.0"><img src="https://img.shields.io/badge/License-AGPL%20v3-blue.svg" alt="License: AGPL v3"></a>
   <a href="./LICENSE-QCDA"><img src="https://img.shields.io/badge/license-Q--CDA-lightgrey.svg" alt="License: Q-CDA"></a>
 </p>
@@ -30,8 +30,8 @@
   </summary>
   <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin-top: 10px; font-family: monospace;">
 
-```bash
-bash <(curl -L https://raw.githubusercontent.com/qompassai/dotfiles/main/scripts/quickstart.sh)
+```sh
+curl -fsSL https://raw.githubusercontent.com/qompassai/haskell/main/scripts/quickstart.sh | sh
 ```
   </div>
   <blockquote style="font-size: 1.2em; line-height: 1.8; padding: 25px; background: #f8f9fa; border-left: 6px solid #667eea; border-radius: 8px; margin: 15px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
@@ -40,64 +40,109 @@ bash <(curl -L https://raw.githubusercontent.com/qompassai/dotfiles/main/scripts
         <strong>📄 We advise you read the script BEFORE running it 😉</strong>
       </summary>
       <pre style="background: #fff; padding: 15px; border-radius: 5px; border: 1px solid #ddd; overflow-x: auto;">
-#!/usr/bin/env bash
-# /qompassai/dotfiles/scripts/quickstart.sh
-# Qompass AI Quick Start Script
+#!/bin/sh
+# /qompassai/haskell/scripts/quickstart.sh
+# Qompass AI Haskell Stack Quickstart
 # Copyright (C) 2025 Qompass AI, All rights reserved
 ####################################################
-
-REPO="https://github.com/qompassai/dotfiles"
-TARGET_DIR="$HOME/.dotfiles"
-if [ -d "$TARGET_DIR" ]; then
-    echo "Removing existing dotfiles directory..."
-    rm -rf "$TARGET_DIR"
-fi
-echo "Cloning Qompass AI Dotfiles..."
-git clone "$REPO" "$TARGET_DIR"
-echo "Setting up symlinks..."
-mkdir -p "$HOME/.config/nix" "$HOME/.profile.d"
-ln -sf "$TARGET_DIR/.config/nix/nix.conf" "$HOME/.config/nix/nix.conf"
-ln -sf "$TARGET_DIR/.profile.d/67-nix.sh" "$HOME/.profile.d/67-nix.sh"
-mkdir -p "$HOME/.config"
-ln -sfn "$TARGET_DIR/home" "$HOME/.config/home" 2>/dev/null || true
-ln -sfn "$TARGET_DIR/.local" "$HOME/.local" 2>/dev/null || true
-ln -sf "$TARGET_DIR/flake.nix" "$HOME/.config/flake.nix" 2>/dev/null || true
-source "$HOME/.profile.d/67-nix.sh" 2>/dev/null || {
-    echo "WARNING: Could not source Nix profile configuration. Falling back to manual exporting"
-    export NIX_CONF_DIR="$HOME/.config/nix"
-    export NIX_STORE_DIR="$HOME/.nix/store"
-    export NIX_STATE_DIR="$HOME/.local/state/nix"
-    export NIX_LOG_DIR="$HOME/.local/state/nix/log"
-    export NIX_PROFILE_DIR="$HOME/.nix-profile"
-    export PATH="$NIX_PROFILE_DIR/bin:$PATH"
+set -eu
+IFS='
+'
+detect_os_arch() {
+	case "$(uname -s)" in
+	Linux*) OS="linux" ;;
+	Darwin*) OS="macos" ;;
+	CYGWIN* | MINGW* | MSYS*) OS="windows" ;;
+	*) OS="unknown" ;;
+	esac
+	case "$(uname -m)" in
+	x86_64 | amd64) ARCH="x86_64" ;;
+	arm64 | aarch64) ARCH="aarch64" ;;
+	*) ARCH="unknown" ;;
+	esac
+	echo "$OS" "$ARCH"
 }
-if ! command -v nix >/dev/null; then
-    echo "Installing Nix with custom configuration..."
-    mkdir -p /.nix/var/nix/{profiles,gcroots,db}
-    chown -R "$(whoami)" /.nix
-    sh <(curl -L https://nixos.org/nix/install) --daemon \
-        --nix-extra-conf-file "$NIX_CONF_DIR/nix.conf"
-    if [ -f '/.nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh' ]; then
-        . '/.nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'
-    fi
-fi
-echo "Setting up Nix environment..."
-cd "$TARGET_DIR"
-nix flake update
-detect_shell() {
-    case "$(ps -p $$ -o comm=)" in
-        *bash*) echo "bash" ;;
-        *zsh*)  echo "zsh" ;;
-        *fish*) echo "fish" ;;
-        *)      echo "bash" ;;
-    esac
+read -r OS ARCH <<EOF
+$(detect_os_arch)
+EOF
+echo "→ Detected OS: $OS"
+echo "→ Detected Architecture: $ARCH"
+echo
+export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+export XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
+export XDG_BIN_HOME="${XDG_BIN_HOME:-$HOME/.local/bin}"
+case "$OS" in
+linux | macos)
+	STACK_CONFIG_DIR="$XDG_CONFIG_HOME/stack"
+	;;
+windows)
+	STACK_CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/AppData/Roaming}/stack"
+	;;
+*)
+	STACK_CONFIG_DIR="$XDG_CONFIG_HOME/stack"
+	;;
+esac
+STACK_CONFIG="$STACK_CONFIG_DIR/config.yaml"
+mkdir -p "$XDG_CONFIG_HOME" "$XDG_DATA_HOME" "$XDG_BIN_HOME" "$STACK_CONFIG_DIR"
+echo "╭──────────────────────────────╮"
+echo "│ Qompass AI Haskell Quickstart│"
+echo "╰──────────────────────────────╯"
+install_stack() {
+	case "$OS" in
+	linux | macos)
+		echo "→ Installing Haskell Stack (OS: $OS, Arch: $ARCH)"
+		curl -sSL https://get.haskellstack.org/ | sh
+		;;
+	windows)
+		echo "❌ Automated Windows install not supported here."
+		echo "➡ Download from: https://get.haskellstack.org/stable/windows-x86_64-installer.exe"
+		exit 1
+		;;
+	*)
+		echo "❌ Unknown OS - please install Stack manually."
+		exit 1
+		;;
+	esac
 }
-USER_SHELL=$(detect_shell)
-echo "Detected shell: $USER_SHELL"
-nix develop --command "$USER_SHELL"
-      </pre>
+if ! command -v stack >/dev/null 2>&1; then
+	install_stack
+else
+	echo "✓ Haskell Stack already installed"
+fi
+if [ ! -f "$STACK_CONFIG" ]; then
+	echo "→ No stack config found at: $STACK_CONFIG"
+	echo "→ Creating default config..."
+	stack config set resolver lts --global
+	DEFAULT_PATH="$(stack path --global-config-location 2>/dev/null || true)"
+	if [ -f "$DEFAULT_PATH" ] && [ "$DEFAULT_PATH" != "$STACK_CONFIG" ]; then
+		mkdir -p "$(dirname "$STACK_CONFIG")"
+		mv "$DEFAULT_PATH" "$STACK_CONFIG"
+		echo "✓ Moved default config to $STACK_CONFIG"
+	fi
+else
+	echo "✓ Found existing stack config at $STACK_CONFIG"
+fi
+if ! echo "$PATH" | grep -q "$XDG_BIN_HOME"; then
+	export PATH="$XDG_BIN_HOME:$PATH"
+	echo "→ Added $XDG_BIN_HOME to PATH for this session"
+fi
+if command -v nix-shell >/dev/null 2>&1; then
+	echo "✓ Nix detected — Stack Nix mode available"
+else
+	echo "⚠ Nix not detected — Stack will run without Nix integration"
+fi
+echo
+echo "✓ Haskell stack setup complete!"
+echo "Detected OS: $OS | Arch: $ARCH"
+echo "Stack config: $STACK_CONFIG"
+echo "Local bin dir: $XDG_BIN_HOME"
+echo
+echo "Examples:"
+echo "  stack new myproject"
+echo "  cd myproject && stack build && stack exec myproject-exe"
+</pre>
     </details>
-    <p>Or, <a href="https://github.com/qompassai/dotfiles/blob/main/scripts/quickstart.sh" target="_blank">View the quickstart script</a>.</p>
+    <p>Or, <a href="https://github.com/qompassai/haskell/blob/main/scripts/quickstart.sh" target="_blank">View the quickstart script</a>.</p>
   </blockquote>
 </details>
 
